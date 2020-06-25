@@ -542,8 +542,7 @@ FishingBuddy.Locations.Update = function(self, forced)
                     end
                     local leveloffset = (level - lastlevel)*16;
                     if ( percent ) then
-                        percent = math.floor(percent*100);
-                        append = " ("..percent.."%)";
+                        append = string.format(" ( %.2f %% )", percent * 100.);
                         percent = nil;
                     else
                         append = ""
