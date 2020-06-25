@@ -196,7 +196,7 @@ local function BothLocationsChanged()
                                 
                             for j=1,table.getn(fishsort),1 do
                                 local id = fishsort[j].id;
-                                MakeInfo(line, 0, id, 0, 3, 99);
+                                MakeInfo(line, 0, id, 0, 3, hour);
                                 line = line + 1;
                             end
                         end
@@ -396,7 +396,6 @@ FishingBuddy.Locations.Update = function(self, forced)
     local fh = FishingBuddy_Info["FishingHoles"];
     local bf = FishingBuddy.ByFishie;
     local ft = FishingBuddy_Info["FishTotals"];
-    local lasthour = nil;
 
     local green = "ff"..FL.COLOR_HEX_GREEN;
     local white = "ff"..FL.COLOR_HEX_WHITE;
@@ -448,7 +447,7 @@ FishingBuddy.Locations.Update = function(self, forced)
                         end
                         if ( level > 0 ) then
                             local zidx, sidx, _ = zmex(lastzid);
-                            local timezid = zmto(zidx, sidx, lasthour);
+                            local timezid = zmto(zidx, sidx, hour);
                             local zonetimecount = ft[timezid];
                             local count = fh[timezid][fid];
 
@@ -471,7 +470,6 @@ FishingBuddy.Locations.Update = function(self, forced)
                                          { total, white } } );
                         end
                     elseif ( hour < 24 ) then
-                        lasthour = hour;
                         text = string.format("%02d:%02d", hour, 0);
                         
                         local zidx, sidx, _ = zmex(zid);
