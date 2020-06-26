@@ -109,9 +109,62 @@ local function CountLocationLines()
 end
 
 local function FishCount(idx)
+    local ft = FishingBuddy_Info["FishTotals"];
+    local fh = FishingBuddy_Info["FishingHoles"];
+    
+    -- Clear quarterly info for totals
+    for zone,count in pairs(ft) do
+        local zidx, sidx, hour = zmex(zone);
+
+        if hour < 24 then
+            local quarter = math.floor(hour / 6);
+            local qidx = zmto(zidx, sidx, 31 + quarter);
+            ft[qidx] = 0;
+        end
+    end
+    
+    -- Compute quarterly info for totals
+    for zone,count in pairs(ft) do
+        local zidx, sidx, hour = zmex(zone);
+
+        if hour < 24 then
+            local quarter = math.floor(hour / 6);
+            local qidx = zmto(zidx, sidx, 31 + quarter);
+            ft[qidx] = ft[qidx] + count;
+        end
+    end
+
+    -- Clear quarterly info for fish
+    for zone,fishies in pairs(fh) do
+        for fishie,count in pairs(fishies) do
+            local zidx, sidx, hour = zmex(zone);
+
+            if hour < 24 then
+                local quarter = math.floor(hour / 6);
+                local qidx = zmto(zidx, sidx, 31 + quarter);
+                if fh[qidx] == nil then
+                    fh[qidx] = {}
+                end
+                fh[qidx][fishie] = 0
+            end
+        end
+    end
+
+    -- Compute quarterly info for fish
+    for zone,fishies in pairs(fh) do
+        for fishie,count in pairs(fishies) do
+            local zidx, sidx, hour = zmex(zone);
+
+            if hour < 24 then
+                local quarter = math.floor(hour / 6);
+                local qidx = zmto(zidx, sidx, 31 + quarter);
+                fh[qidx][fishie] = fh[qidx][fishie] + count
+            end
+        end
+    end
+
     local count = 0;
     local total = 0;
-    local fh = FishingBuddy_Info["FishingHoles"];
     if ( fh[idx] ) then
         for fishie,val in pairs(fh[idx]) do
             count = count + 1;
@@ -165,7 +218,7 @@ local function BothLocationsChanged()
             for s=1,subcount,1 do
                 local subzone = subsorted[s];
 
-                for hour=0,23 do
+                for hour=31,34 do
                     local where = FishingBuddy.GetZoneIndex(mapId, subzone, true, hour);
                     local count, total = FishCount(where);
                     if ( total > 0 ) then
@@ -433,7 +486,7 @@ FishingBuddy.Locations.Update = function(self, forced)
             end
             if ( odx >= offset and odx < limit ) then
                 local locButton = _G["FishingLocations"..i];
-                if ( zid > 0 or fid > 0 or hour < 24 ) then
+                if ( zid > 0 or fid > 0 or hour < 99 ) then
                     local text, texture;
                     locButton.tooltip = {};
                     if ( fid > 0 ) then
@@ -469,8 +522,9 @@ FishingBuddy.Locations.Update = function(self, forced)
                                       { { FBConstants.CAUGHTTHISTOTAL, green },
                                          { total, white } } );
                         end
-                    elseif ( hour < 24 ) then
-                        text = string.format("%02d:%02d", hour, 0);
+                    elseif ( hour < 99 ) then
+                        --text = string.format("%02d:%02d", hour, 0);
+                        text = string.format("Q%d", hour - 30);
                         
                         local zidx, sidx, _ = zmex(zid);
                         local alltimezid = zmto(zidx, sidx);
