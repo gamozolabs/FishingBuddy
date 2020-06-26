@@ -212,11 +212,11 @@ local function BothLocationsChanged()
         local mapId = FishingBuddy.MappedZones[zone];
         if ( mapId ) then
             local addedzone = false;
-            local addedsubzone = false;
             local subsorted = FishingBuddy.SortedByZone[zone];
             local subcount = table.getn(subsorted);
             for s=1,subcount,1 do
                 local subzone = subsorted[s];
+                local addedsubzone = false;
 
                 for hour=31,34 do
                     local where = FishingBuddy.GetZoneIndex(mapId, subzone, true, hour);
@@ -227,13 +227,13 @@ local function BothLocationsChanged()
                             line = line + 1;
                             addedzone = true;
                         end
+                        if (not addedsubzone) then
+                            local exid,exsid,extime = zmex(where)
+                            MakeInfo(line, zmto(exid, exsid), 0, 1, 1, 99);
+                            line = line + 1;
+                            addedsubzone = true;
+                        end
                         if ( fh[where] ) then
-                            if (not addedsubzone) then
-                                local exid,exsid,extime = zmex(where)
-                                MakeInfo(line, zmto(exid, exsid), 0, 1, 1, 99);
-                                line = line + 1;
-                                addedsubzone = true;
-                            end
                             local fishsort = {};
                             for fishid,count in pairs(fh[where]) do
                                 local info = {};
@@ -522,28 +522,6 @@ FishingBuddy.Locations.Update = function(self, forced)
                                       { { FBConstants.CAUGHTTHISTOTAL, green },
                                          { total, white } } );
                         end
-                    elseif ( hour < 99 ) then
-                        --text = string.format("%02d:%02d", hour, 0);
-                        text = string.format("Q%d", hour - 30);
-                        
-                        local zidx, sidx, _ = zmex(zid);
-                        local alltimezid = zmto(zidx, sidx);
-                        percent = ft[zid] / ft[alltimezid];
-                        
-                        locButton.name = text;
-                        tinsert(locButton.tooltip, text);
-                            
-                        tinsert(locButton.tooltip,
-                                  { { FBConstants.CAUGHTTHISMANY, green },
-                                      { ft[zid], white } } );
-                        tinsert(locButton.tooltip,
-                                  { { FBConstants.CAUGHTTHISTOTAL, green },
-                                      { ft[alltimezid], white } } );
-
-                        locButton.item = nil;
-                        locButton.fishid = nil;
-                        locButton.name = nil;
-                        texture = nil;
                     elseif ( hour == 99 and zid > 0 ) then
                         if ( sidx > 0 ) then
                             text = FL:GetLocSubZone(FishingBuddy_Info["SubZones"][zid], 1);
@@ -587,6 +565,28 @@ FishingBuddy.Locations.Update = function(self, forced)
                                           { { FBConstants.CAUGHTTHISTOTAL, green },
                                              { totals[level], white } } );
                         end
+                        locButton.item = nil;
+                        locButton.fishid = nil;
+                        locButton.name = nil;
+                        texture = nil;
+                    elseif ( hour < 99 ) then
+                        --text = string.format("%02d:%02d", hour, 0);
+                        text = string.format("Q%d", hour - 30);
+                        
+                        local zidx, sidx, _ = zmex(zid);
+                        local alltimezid = zmto(zidx, sidx);
+                        percent = ft[zid] / ft[alltimezid];
+                        
+                        locButton.name = text;
+                        tinsert(locButton.tooltip, text);
+                            
+                        tinsert(locButton.tooltip,
+                                  { { FBConstants.CAUGHTTHISMANY, green },
+                                      { ft[zid], white } } );
+                        tinsert(locButton.tooltip,
+                                  { { FBConstants.CAUGHTTHISTOTAL, green },
+                                      { ft[alltimezid], white } } );
+
                         locButton.item = nil;
                         locButton.fishid = nil;
                         locButton.name = nil;
