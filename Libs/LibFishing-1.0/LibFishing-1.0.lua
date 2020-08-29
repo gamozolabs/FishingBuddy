@@ -1341,10 +1341,6 @@ function FishLib:CheckForDoubleClick(button)
         return false;
     end
 
-    if true then
-        return true;
-    end
-
     if ( not LootFrame:IsShown() and self.lastClickTime ) then
         local pressTime = GetTime();
         local doubleTime = pressTime - self.lastClickTime;
